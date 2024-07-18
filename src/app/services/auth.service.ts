@@ -1,26 +1,30 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { LoginRequest, SignupRequest, AuthResponse } from '../models/auth.model';
+import { tap } from 'rxjs/operators';
+import { LoginRequest, SignupRequest, AuthResponse } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/auth'; // Adjust this to your backend URL
+  private apiUrl = 'http://localhost:8081/api/auth';
 
   constructor(private http: HttpClient) {}
 
   login(loginRequest: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, loginRequest);
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, loginRequest).pipe(
+      tap(response => this.setToken(response.accessToken))
+    );
   }
 
   signup(signupRequest: SignupRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/signup`, signupRequest);
+    return this.http.post<AuthResponse>(`${this.apiUrl}/signup`, signupRequest).pipe(
+      tap(response => this.setToken(response.accessToken))
+    );
   }
 
   logout(): void {
-    // Remove the token from local storage
     localStorage.removeItem('token');
   }
 

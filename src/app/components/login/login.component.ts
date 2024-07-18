@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +15,8 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
@@ -25,13 +27,11 @@ export class LoginComponent {
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.authService.login(this.loginForm.value).subscribe(
-        response => {
-          this.authService.setToken(response.token);
+        () => {
           this.router.navigate(['/dashboard']);
         },
         error => {
-          console.error('Login failed', error);
-          // Handle error (e.g., show error message)
+          this.snackBar.open('Login failed. Please try again.', 'Close', { duration: 3000 });
         }
       );
     }
